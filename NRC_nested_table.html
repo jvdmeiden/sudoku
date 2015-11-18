@@ -8,12 +8,27 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
   <style>
-    td {
-        width: 150px;
+    table {
+      border-collapse: collapse;
+	}
+    td.large {
+        width: 153px;
     }
-    tr {
-        height: 50px;
+    tr.lage {
+        height: 153px;
     }
+    td.medium {
+        width: 51px;
+    }
+    tr.medium {
+        height: 51px;
+    }	
+    td.small {
+        width: 17px;
+    }
+    tr.small {
+        height: 17px;
+    }		
    </style>
 </head>
   <body>
@@ -30,30 +45,38 @@
 	tableL.setAttribute('border', '3');
 	for (var x = 0; x < 3 ; x++){
 	  var lineL = document.createElement('tr');
+	  lineL.setAttribute('class','large');
 	  for (var y = 0; y < 3 ; y++){
         var cellL = document.createElement('td');
-		var tableS = document.createElement('table');
-		tableS.setAttribute('border', '2');
+		cellL.setAttribute('class','large');
+		var tableM = document.createElement('table');
+		tableM.setAttribute('border', '2');
 	    for (var i = 0; i < 3 ; i++){
-		  var lineS = document.createElement('tr');
+		  var lineM = document.createElement('tr');
+		  lineM.setAttribute('class','medium');
 		  for (var j = 0; j < 3 ; j++){
-		    console.log(x+','+y+','+i+','+j);
-		    var cellS = document.createElement('td');
-			var tableM = document.createElement('table');
-			tableM.setAttribute('border', '0');
+		    var cellM = document.createElement('td');
+			cellM.setAttribute('class','medium');
+			var tableS = document.createElement('table');
+			tableS.setAttribute('border', '0');
 			for (var p = 0; p < 3; p++){
-			  var lineM = document.createElement('tr');
+			  var lineS = document.createElement('tr');
+			  lineS.setAttribute('class','small');
 			  for (var q = 0; q < 3; q++){
+			    var cellS = document.createElement('td');
+			    cellS.setAttribute('class','small');
+				var cellText = document.createTextNode(p*3+q+1);
+				cellS.appendChild(cellText);
+				lineS.appendChild(cellS);
 			  }
+			  tableS.appendChild(lineS);
 			}
-	        		
-		    var cellText = document.createTextNode((x*3+i)+','+(y*3+j));
-			cellS.appendChild(cellText);
-			lineS.appendChild(cellS);
+	        cellM.appendChild(tableS);
+            lineM.appendChild(cellM);			
 		  }	
-		  tableS.appendChild(lineS);
+		  tableM.appendChild(lineM);
 		}
-		cellL.appendChild(tableS);
+		cellL.appendChild(tableM);
 		lineL.appendChild(cellL);
 	  }
 	  tableL.appendChild(lineL);
