@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Sudoku NRC</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <style>
+    td {
+        width: 150px;
+    }
+    tr {
+        height: 50px;
+    }
+   </style>
+</head>
+  <body>
+
+  <div class="container">
+    <div id="sudokuTable">
+    </div>
+  </div>
+
+  </body>
+  <script>
+    // Set up table
+ 	var tableL = document.createElement('table');
+	tableL.setAttribute('border', '3');
+	for (var x = 0; x < 3 ; x++){
+	  var lineL = document.createElement('tr');
+	  for (var y = 0; y < 3 ; y++){
+        var cellL = document.createElement('td');
+		var tableS = document.createElement('table');
+		tableS.setAttribute('border', '2');
+	    for (var i = 0; i < 3 ; i++){
+		  var lineS = document.createElement('tr');
+		  for (var j = 0; j < 3 ; j++){
+		    console.log(x+','+y+','+i+','+j);
+		    var cellS = document.createElement('td');
+			var tableM = document.createElement('table');
+			tableM.setAttribute('border', '0');
+			for (var p = 0; p < 3; p++){
+			  var lineM = document.createElement('tr');
+			  for (var q = 0; q < 3; q++){
+			  }
+			}
+	        		
+		    var cellText = document.createTextNode((x*3+i)+','+(y*3+j));
+			cellS.appendChild(cellText);
+			lineS.appendChild(cellS);
+		  }	
+		  tableS.appendChild(lineS);
+		}
+		cellL.appendChild(tableS);
+		lineL.appendChild(cellL);
+	  }
+	  tableL.appendChild(lineL);
+	}
+	
+    var root=document.getElementById('sudokuTable');
+	root.appendChild(tableL);
+
+	// setup
+  </script>
+</html>
+

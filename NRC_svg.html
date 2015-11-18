@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Sudoku NRC</title>
+  <meta charset="utf-8">
+  <style>
+    input, select, textarea {
+      font-size: 30px;
+    } 
+  </style>
+</head>
+  <body>
+
+    <div class="container">
+      <div id="sudokuTable">
+        <svg xmlns="http://www.w3.org/2000/svg"  width="450px" height="450px" 
+	    onload="startup(evt)">
+          <script type="text/ecmascript">
+            <![CDATA[
+		      var SVGDoc = null;
+    		  var svgns = 'http://www.w3.org/2000/svg';
+              var sudokuRoot = null;
+			  var newLine = null;
+ 		      var matrixP = new Array();
+	          var matrixV = new Array();
+            
+			  function startup(evt) {
+			    SVGDoc = evt.target.ownerDocument;
+                sudokuRoot = SVGDoc.getElementById("sudoku");
+                // Draw lines
+			    for (var i = 0; i < 10 ; i++){
+                  newLine = SVGDoc.createElementNS(svgns,"line");
+                  newLine.setAttribute("x1", 0);
+                  newLine.setAttribute("y1", i*50);
+                  newLine.setAttribute("x2", 450);
+                  newLine.setAttribute("y2", i*50);
+				  if (i%3==0){
+                    newLine.setAttribute("style", "stroke:rgb(40,40,40);stroke-width:3");
+				  } else {
+                    newLine.setAttribute("style", "stroke:rgb(40,40,40);stroke-width:1");
+				  }
+                  sudokuRoot.appendChild(newLine);	
+                  newLine = SVGDoc.createElementNS(svgns,"line");
+                  newLine.setAttribute("x1", i*50);
+                  newLine.setAttribute("y1", 0);
+                  newLine.setAttribute("x2", i*50);
+                  newLine.setAttribute("y2", 450);
+				  if (i%3==0){
+                    newLine.setAttribute("style", "stroke:rgb(40,40,40);stroke-width:3");
+				  } else {
+                    newLine.setAttribute("style", "stroke:rgb(40,40,40);stroke-width:1");
+				  }
+                  sudokuRoot.appendChild(newLine);				
+				}
+			    // Initialize Arrays & draw background
+                for (var i = 0; i < 9 ; i++){
+	              var rowP = new Array();
+	              var rowV = new Array();
+                  for (var j = 0; j < 9 ; j++){
+		            rowP.push([1,2,3,4,5,6,7,8,9]);
+		            rowV.push(0);
+				    newRect = SVGDoc.createElementNS(svgns,"rect");
+				    newRect.setAttribute("onmouseover", "showStat(evt)")
+				    newRect.setAttribute("onclick", "showMenu(evt)")
+				    newRect.setAttribute("id_x", i);
+				    newRect.setAttribute("id_y", j);
+                    newRect.setAttribute("x", i*50+1);
+                    newRect.setAttribute("y", j*50+1);
+                    newRect.setAttribute("height", 48);
+                    newRect.setAttribute("width", 48);
+				    if ((i==1||i==2|i==3|i==5|i==6|i==7)&&(j==1||j==2|j==3|j==5|j==6|j==7)){
+                      newRect.setAttribute("style",   "fill:darkgrey;stroke:none;stroke-width:0;fill-opacity:0.2;stroke-opacity:0.9");
+				    }else {
+                      newRect.setAttribute("style",   "fill:white;stroke:none;stroke-width:0;fill-opacity:0.1;stroke-opacity:0.9");
+				    }
+                    sudokuRoot.appendChild(newRect);		
+                  }
+	              matrixP.push(rowP);
+	              matrixV.push(rowV);
+                }
+              }
+
+			  function showStat(evt) {
+			    var x=evt.target.getAttributeNS(null,"id_x");
+				var y=evt.target.getAttributeNS(null,"id_y");
+			    console.log(evt.target.getAttributeNS(null,"id_x")+','+evt.target.getAttributeNS(null,"id_y"));
+				console.log(JSON.stringify(matrixP[x][y]));
+			  }
+			  
+			  function showMenu(evt) {
+			    var x=evt.target.getAttributeNS(null,"id_x");
+				var y=evt.target.getAttributeNS(null,"id_y");			  
+
+				newMenu = document.createElement("foreignobject");
+				newMenu.setAttribute("id", "form");
+				newMenu.setAttribute("x", x*50);
+				newMenu.setAttribute("y", y*50);
+				newMenu.setAttribute("width", 200);
+				newMenu.setAttribute("height", 150);
+				var newBody = document.createElement('body');
+				newBody.setAttribute("xlmns","http://www.w3.org/1999/xhtml");
+				var newForm = document.createElement('form');
+				newForm.setAttribute("onsubmit","return submitValue()");
+                var newLabel = document.createElement('label');
+				newLabel.setAttribute("for","myValue");
+				newForm.appendChild(newLabel);
+				var newSelect = document.createElement('select');
+				newSelect.setAttribute("id","myValue");
+				newSelect.setAttribute("name","value");
+                matrixP[x][y].forEach(function (item,index,array){
+				  var newOption = document.createElement('option');
+				  var cellText = document.createTextNode(item);               
+				  newOption.appendChild(cellText);
+				  newSelect.appendChild(newOption);
+				});
+                newForm.appendChild(newSelect);	
+			
+				var newInput = document.createElement('input');
+				newInput.setAttribute("type","submit");
+				newInput.setAttribute("value","Submit");
+                newForm.appendChild(newInput);				
+				newBody.appendChild(newForm);
+                newMenu.appendChild(newBody);	
+//                newMenu.appendChild(newForm);	
+				var menuRoot=document.getElementById('menu');
+	            menuRoot.appendChild(newMenu);
+		
+    NewDot = SVGDoc.createElementNS(svgns,"circle");
+    NewDot.setAttribute("cx", 10); 
+    NewDot.setAttribute("cy", 10); 
+    NewDot.setAttribute("r", 7);  
+    NewDot.setAttribute("opacity",1);
+    NewDot.setAttribute("fill", "rgb(255,240,10)");
+    menuRoot.appendChild(NewDot);		
+				
+              }
+			  
+			  function submitValue(evt) {
+			    console.log(document.getElementById( 'myValue' ).value);
+				return false;
+			  }
+			  
+            ]]>
+          </script>
+		  <text x="261" y="141" 
+            font-family="Verdana" 
+            font-size="45">
+            9
+          </text>
+          <g id="sudoku">
+          </g>
+          <g id="menu">
+
+          </g>
+		  
+        </svg>
+      </div>
+    </div>
+  </body>
+</html>
+

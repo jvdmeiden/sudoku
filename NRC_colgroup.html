@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Sudoku NRC</title>
+  <meta charset="utf-8">
+  <style>
+    input, select, textarea {
+      font-size: 30px;
+    } 
+  </style>
+</head>
+  <body>
+
+    <div class="container">
+      <div id="sudokuTable">
+        <svg xmlns="http://www.w3.org/2000/svg"  width="450px" height="450px" 
+	    onload="startup(evt)">
+          <script type="text/ecmascript">
+            <![CDATA[
+		      var SVGDoc = null;
+    		  var svgns = 'http://www.w3.org/2000/svg';
+              var sudokuRoot = null;
+			  var newLine = null;
+ 		      var matrixP = new Array();
+	          var matrixV = new Array();
+            
+			  function startup(evt) {
+			    SVGDoc = evt.target.ownerDocument;
+                sudokuRoot = SVGDoc.getElementById("sudoku");
+                // Draw lines
+			    // Initialize Arrays & draw background
+              }
+
+			  function showStat(evt) {
+			    console.log(evt.target.getAttributeNS(null,"id_x")+','+evt.target.getAttributeNS(null,"id_y"));
+				console.log(JSON.stringify(matrixP[x][y]));
+			  }
+			  
+			  function showMenu(evt) {
+              }
+			  
+			  console.log(evt.target.getAttributeNS(null,"id_x")+','+evt.target.getAttributeNS(null,"id_y"));
+			  }
+
+			  function submitValue(evt) {
+			    console.log(document.getElementById( 'myValue' ).value);
+				return false;
+			  }
+			  
+            ]]>
+          </script>
+		  <text x="261" y="141" 
+            font-family="Verdana" 
+            font-size="45">
+            9
+          </text>
+          <g id="sudoku">
+          </g>
+          <g id="menu">
+          </g>
+		  
+        </svg>
+      </div>
+    </div>
+  </body>
+</html>
+
