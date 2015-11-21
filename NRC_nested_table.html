@@ -12,23 +12,31 @@
       border-collapse: collapse;
 	}
     td.large {
-        width: 153px;
+      width: 153px;
     }
     tr.lage {
-        height: 153px;
+      height: 153px;
     }
     td.medium {
-        width: 51px;
+	  text-align: center;
+	  font-size: 36px;
+      cursor: crosshair;	  
+      width: 51px;
     }
     tr.medium {
-        height: 51px;
+      height: 51px;
     }	
     td.small {
-        width: 17px;
+	  text-align: center;
+	  font-size: 12px;
+      width: 17px;
     }
     tr.small {
-        height: 17px;
-    }		
+      height: 17px;
+    }	
+    td.nrc {
+	  bgcolor: '#f0f0f0'
+	}	
    </style>
 </head>
   <body>
@@ -56,14 +64,25 @@
 		  lineM.setAttribute('class','medium');
 		  for (var j = 0; j < 3 ; j++){
 		    var cellM = document.createElement('td');
+			if (     (((((x*3)+i) > 0 && ((x*3)+i) < 4 )  
+			      || ((((x*3)+i) > 4 && ((x*3)+i) < 8 ))))
+				  && (((((y*3)+j) > 0 && ((y*3)+j) < 4 )  
+			      || ((((y*3)+j) > 4 && ((y*3)+j) < 8 ))))
+				  ){
+			  cellM.setAttribute('bgcolor','#d0d0d0');
+			}
 			cellM.setAttribute('class','medium');
+			cellM.setAttribute('id','M='+x+','+y+'_'+i+','+j)
 			var tableS = document.createElement('table');
+			tableS.setAttribute('id','T='+x+','+y+'_'+i+','+j)
 			tableS.setAttribute('border', '0');
 			for (var p = 0; p < 3; p++){
 			  var lineS = document.createElement('tr');
 			  lineS.setAttribute('class','small');
 			  for (var q = 0; q < 3; q++){
 			    var cellS = document.createElement('td');
+				cellS.setAttribute('onclick','clicked(this)');
+			    cellS.setAttribute('id',x+','+y+','+i+','+j+','+(3*p+q+1));
 			    cellS.setAttribute('class','small');
 				var cellText = document.createTextNode(p*3+q+1);
 				cellS.appendChild(cellText);
@@ -85,7 +104,45 @@
     var root=document.getElementById('sudokuTable');
 	root.appendChild(tableL);
 
-	// setup
-  </script>
+	// setup matrix
+    var mPossible = new Array();
+	var mValue = new Array();
+    for (i = 0; i < 9 ; i++){
+ 	  var rowP = new Array();
+	  var rowV = new Array();
+      for ( j = 0; j < 9 ; j++){
+		rowP.push([1,2,3,4,5,6,7,8,9]);
+		rowV.push(null);
+      };
+	  mPossible.push(rowP);
+	  mValue.push(rowV);
+    };
+
+	function clicked(x){
+	  var cVal=JSON.parse('['+x.id+']');
+	  console.log(JSON.stringify(cVal));
+	  console.log(JSON.stringify(mValue[3*cVal[0]+cVal[2]][3*cVal[1]+cVal[2]]));
+	  if(mValue[3*cVal[0]+cVal[2]][3*cVal[1]+cVal[3]]==null){
+	    console.log("empty");
+		mValue[3*cVal[0]+cVal[2]][3*cVal[1]+cVal[3]]=cVal[4];
+		var toRemove=document.getElementById('T='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
+	    var target=document.getElementById('M='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
+		target.removeChild(toRemove);
+        var cellText = document.createTextNode(cVal[4]);
+		target.appendChild(cellText);
+        
+		
+		
+		
+	  }
+	  
+	  
+	}
+	
+	
+
+
+
+	</script>
 </html>
 
