@@ -1,8 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- Jan van der Meiden - jvdmeiden@gmail.com                                -->
+<!-- Interactive version of the NRC dialect (4 additional lightgrey squares) -->
+<!--                                                                         -->
+<!-- The playing field exists of (used as classes):                          -->
+<!-- 9 squares:           SQ1, ..., SQ9                                      -->
+<!-- 4 gray squares:      SQG1, .., SQG4                                     -->
+<!-- 9 horizontal lines:  LH1,.. , LH9                                       -->
+<!-- 9 vertical lines:    LV1,.. , LV9                                       -->
+<!-- -->
+
 <head>
-  <title>Sudoku NRC</title>
   <meta charset="utf-8">
+  <title>Sudoku NRC</title>
+  <meta name="copyright" content="Jan van der Meiden">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -82,7 +93,7 @@
 			  for (var q = 0; q < 3; q++){
 			    var cellS = document.createElement('td');
 				cellS.setAttribute('onclick','clicked(this)');
-			    cellS.setAttribute('id',x+','+y+','+i+','+j+','+(3*p+q+1));
+			    cellS.setAttribute('id','p_'+x+','+y+','+i+','+j+','+(3*p+q+1));
 			    cellS.setAttribute('class','small');
 				var cellText = document.createTextNode(p*3+q+1);
 				cellS.appendChild(cellText);
@@ -118,31 +129,38 @@
 	  mValue.push(rowV);
     };
 
-	function clicked(x){
-	  var cVal=JSON.parse('['+x.id+']');
-	  console.log(JSON.stringify(cVal));
-	  console.log(JSON.stringify(mValue[3*cVal[0]+cVal[2]][3*cVal[1]+cVal[2]]));
-	  if(mValue[3*cVal[0]+cVal[2]][3*cVal[1]+cVal[3]]==null){
-	    console.log("empty");
-		mValue[3*cVal[0]+cVal[2]][3*cVal[1]+cVal[3]]=cVal[4];
+	function clicked(t){
+	  var cVal=JSON.parse('['+t.id.replace("p_","")+']');	 
+	  var x=3*cVal[0]+cVal[2];
+	  var y=3*cVal[1]+cVal[3];
+	  var val=cVal[4];
+	  // Remove small squares
+	  if(mValue[x][y]==null){
+		mValue[x][y]=cVal[4];
 		var toRemove=document.getElementById('T='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
 	    var target=document.getElementById('M='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
 		target.removeChild(toRemove);
         var cellText = document.createTextNode(cVal[4]);
 		target.appendChild(cellText);
-        
-		
-		
-		
-	  }
-	  
-	  
+		// Remove values no longer available
+    	for (var xt = 0; xt < 3 ; xt++){
+	      for (var yt = 0; yt < 3 ; yt++){
+	        for (var i = 0; i < 3 ; i++){
+		      for (var j = 0; j < 3 ; j++){
+                if ((xt*3+i)==x||(yt*3+j)==y){
+				console.log('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+				  var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+				  if (toReset!=null){
+				  	toReset.setAttribute('onclick',null);
+				    toReset.setAttribute('style','color:lightgrey');
+				  }
+				}			
+    		  }	
+	    	}
+	      }
+    	}
+	  }	  
 	}
-	
-	
-
-
-
 	</script>
 </html>
 
