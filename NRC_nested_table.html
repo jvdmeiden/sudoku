@@ -1,14 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <!-- Jan van der Meiden - jvdmeiden@gmail.com                                -->
-<!-- Interactive version of the NRC dialect (4 additional lightgrey squares) -->
+<!-- Interactive version of the NRC sudoku (4 additional lightgrey squares)  -->
 <!--                                                                         -->
-<!-- The playing field exists of (used as classes):                          -->
-<!-- 9 squares:           SQ1, ..., SQ9                                      -->
-<!-- 4 gray squares:      SQG1, .., SQG4                                     -->
-<!-- 9 horizontal lines:  LH1,.. , LH9                                       -->
-<!-- 9 vertical lines:    LV1,.. , LV9                                       -->
-<!-- -->
 
 <head>
   <meta charset="utf-8">
@@ -116,35 +110,65 @@
 	root.appendChild(tableL);
 
 	function clickedS(t){
+	  // Retreive 'x and y' value from clicked item
 	  var cVal=JSON.parse('['+t.id.replace("p_","")+']');	 
 	  var x=3*cVal[0]+cVal[2];
 	  var y=3*cVal[1]+cVal[3];
 	  var val=cVal[4];
-	  // Remove small squares
-
+	  // Remove 'small squares'
       var toRemove=document.getElementById('T='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
 	  var target=document.getElementById('M='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
 	  target.removeChild(toRemove);
+	  // Set new text
       var cellText = document.createTextNode(cVal[4]);
 	  target.appendChild(cellText);
-	  // Remove values no longer available along x&y
+	  // Remove values no longer available 
       for (var xt = 0; xt < 3 ; xt++){
 	    for (var yt = 0; yt < 3 ; yt++){
 	      for (var i = 0; i < 3 ; i++){
 		    for (var j = 0; j < 3 ; j++){
+			  // console.log('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+			  // Along lines
               if ((xt*3+i)==x||(yt*3+j)==y){
-		        console.log('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
 				var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
 				if (toReset!=null){
 				  toReset.setAttribute('onclick',null);
-				  toReset.setAttribute('style','color:lightgrey');
+				  toReset.setAttribute('style','color:cyan');
 				}
-			  }			
+			  }	
+              
+			  // In 'grey' (NRC) block
+              if ( (x%4!=0) && (y%4!=0) && ((xt*3+i)%4!=0) && ((yt*3+j)%4!=0) && (parseInt(x/4)==parseInt((xt*3+i)/4)) && (parseInt(y/4)==parseInt((yt*3+j)/4))) {
+			  var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+				if (toReset!=null){
+				  toReset.setAttribute('onclick',null);
+				  toReset.setAttribute('style','color:cyan');
+				}
+			  }			  
+			  // In 'classic' block
+              if (xt==cVal[0]&&yt==cVal[1]){
+				var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+				if (toReset!=null){
+				  toReset.setAttribute('onclick',null);
+				  toReset.setAttribute('style','color:cyan');
+				}
+			  }			  
     		}	
 	      }
-	    }
+	    } 
       }
-	  
+	  // Remove values no longer available in current block
+//	  for (i = 0; i < 3; i++){
+//	    for (j = 0; j < 3; j++){
+//		  var toReset=document.getElementById('p_'+cVal[0]+','+cVal[1]+','+i+','+j+','+cVal[4]);
+//		  if (toReset!=null){
+//			toReset.setAttribute('onclick',null);
+//			toReset.setAttribute('style','color:lightgrey');
+//		  }
+//		}	
+//	  }
+  	  // Remove values in grey boxes
+
 	}
 	</script>
 </html>
