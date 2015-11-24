@@ -15,7 +15,7 @@
   <style>
     table {
       border-collapse: collapse;
-	}
+  }
     td.large {
       width: 153px;
     }
@@ -23,30 +23,34 @@
       height: 153px;
     }
     td.medium {
-	  text-align: center;
-	  font-size: 36px;
-      cursor: crosshair;	  
+      text-align: center;
+      font-size: 36px;
+      cursor: crosshair;    
       width: 51px;
     }
     tr.medium {
       height: 51px;
-    }	
+    }  
     td.small {
-	  text-align: center;
-	  font-size: 12px;
+      text-align: center;
+      font-size: 12px;
       width: 17px;
     }
     tr.small {
       height: 17px;
-    }	
+    }  
     td.nrc {
-	  bgcolor: '#f0f0f0'
-	}	
+      bgcolor: '#f0f0f0'
+    }  
    </style>
 </head>
   <body>
-
   <div class="container">
+    <h2>Background</h2>
+    <p>Once upon a time tried to solve Sudoku in html5...
+       This travel is documented at: <a href="http://janvandermeiden.blogspot.nl/2015/11/using-javascript-to-solve-sudoku.html">this blog</a>.
+    </p> 
+
     <div id="sudokuTable">
     </div>
   </div>
@@ -54,122 +58,108 @@
   </body>
   <script>
     // Set up table
- 	var tableL = document.createElement('table');
-	tableL.setAttribute('border', '3');
-	for (var x = 0; x < 3 ; x++){
-	  var lineL = document.createElement('tr');
-	  lineL.setAttribute('class','large');
-	  for (var y = 0; y < 3 ; y++){
+    var tableL = document.createElement('table');
+    tableL.setAttribute('border', '3');
+    for (var x = 0; x < 3 ; x++){
+      var lineL = document.createElement('tr');
+      lineL.setAttribute('class','large');
+      for (var y = 0; y < 3 ; y++){
         var cellL = document.createElement('td');
-		cellL.setAttribute('class','large');
-		var tableM = document.createElement('table');
-		tableM.setAttribute('border', '2');
-	    for (var i = 0; i < 3 ; i++){
-		  var lineM = document.createElement('tr');
-		  lineM.setAttribute('class','medium');
-		  for (var j = 0; j < 3 ; j++){
-		    var cellM = document.createElement('td');
-			if (     (((((x*3)+i) > 0 && ((x*3)+i) < 4 )  
-			      || ((((x*3)+i) > 4 && ((x*3)+i) < 8 ))))
-				  && (((((y*3)+j) > 0 && ((y*3)+j) < 4 )  
-			      || ((((y*3)+j) > 4 && ((y*3)+j) < 8 ))))
-				  ){
-			  cellM.setAttribute('bgcolor','#d0d0d0');
-			}
-			cellM.setAttribute('class','medium');
-			cellM.setAttribute('id','M='+x+','+y+'_'+i+','+j)
-			var tableS = document.createElement('table');
-			tableS.setAttribute('id','T='+x+','+y+'_'+i+','+j)
-			tableS.setAttribute('border', '0');
-			for (var p = 0; p < 3; p++){
-			  var lineS = document.createElement('tr');
-			  lineS.setAttribute('class','small');
-			  for (var q = 0; q < 3; q++){
-			    var cellS = document.createElement('td');
-				cellS.setAttribute('onclick','clickedS(this)');
-			    cellS.setAttribute('id','p_'+x+','+y+','+i+','+j+','+(3*p+q+1));
-			    cellS.setAttribute('class','small');
-				var cellText = document.createTextNode(p*3+q+1);
-				cellS.appendChild(cellText);
-				lineS.appendChild(cellS);
-			  }
-			  tableS.appendChild(lineS);
-			}
-	        cellM.appendChild(tableS);
-            lineM.appendChild(cellM);			
-		  }	
-		  tableM.appendChild(lineM);
-		}
-		cellL.appendChild(tableM);
-		lineL.appendChild(cellL);
-	  }
-	  tableL.appendChild(lineL);
-	}
-	
-    var root=document.getElementById('sudokuTable');
-	root.appendChild(tableL);
-
-	function clickedS(t){
-	  // Retreive 'x and y' value from clicked item
-	  var cVal=JSON.parse('['+t.id.replace("p_","")+']');	 
-	  var x=3*cVal[0]+cVal[2];
-	  var y=3*cVal[1]+cVal[3];
-	  var val=cVal[4];
-	  // Remove 'small squares'
-      var toRemove=document.getElementById('T='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
-	  var target=document.getElementById('M='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
-	  target.removeChild(toRemove);
-	  // Set new text
-      var cellText = document.createTextNode(cVal[4]);
-	  target.appendChild(cellText);
-	  // Remove values no longer available 
-      for (var xt = 0; xt < 3 ; xt++){
-	    for (var yt = 0; yt < 3 ; yt++){
-	      for (var i = 0; i < 3 ; i++){
-		    for (var j = 0; j < 3 ; j++){
-			  // console.log('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
-			  // Along lines
-              if ((xt*3+i)==x||(yt*3+j)==y){
-				var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
-				if (toReset!=null){
-				  toReset.setAttribute('onclick',null);
-				  toReset.setAttribute('style','color:cyan');
-				}
-			  }	
-              
-			  // In 'grey' (NRC) block
-              if ( (x%4!=0) && (y%4!=0) && ((xt*3+i)%4!=0) && ((yt*3+j)%4!=0) && (parseInt(x/4)==parseInt((xt*3+i)/4)) && (parseInt(y/4)==parseInt((yt*3+j)/4))) {
-			  var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
-				if (toReset!=null){
-				  toReset.setAttribute('onclick',null);
-				  toReset.setAttribute('style','color:cyan');
-				}
-			  }			  
-			  // In 'classic' block
-              if (xt==cVal[0]&&yt==cVal[1]){
-				var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
-				if (toReset!=null){
-				  toReset.setAttribute('onclick',null);
-				  toReset.setAttribute('style','color:cyan');
-				}
-			  }			  
-    		}	
-	      }
-	    } 
+        cellL.setAttribute('class','large');
+        var tableM = document.createElement('table');
+        tableM.setAttribute('border', '2');
+        for (var i = 0; i < 3 ; i++){
+          var lineM = document.createElement('tr');
+          lineM.setAttribute('class','medium');
+          for (var j = 0; j < 3 ; j++){
+            var cellM = document.createElement('td');
+            if (     (((((x*3)+i) > 0 && ((x*3)+i) < 4 )  
+                  || ((((x*3)+i) > 4 && ((x*3)+i) < 8 ))))
+                  && (((((y*3)+j) > 0 && ((y*3)+j) < 4 )  
+                  || ((((y*3)+j) > 4 && ((y*3)+j) < 8 ))))
+            ){
+              cellM.setAttribute('bgcolor','#d0d0d0');
+            }
+            cellM.setAttribute('class','medium');
+            cellM.setAttribute('id','M='+x+','+y+'_'+i+','+j)
+            var tableS = document.createElement('table');
+            tableS.setAttribute('id','T='+x+','+y+'_'+i+','+j)
+            tableS.setAttribute('border', '0');
+            for (var p = 0; p < 3; p++){
+              var lineS = document.createElement('tr');
+              lineS.setAttribute('class','small');
+              for (var q = 0; q < 3; q++){
+                var cellS = document.createElement('td');
+                cellS.setAttribute('onclick','clickedS(this)');
+                cellS.setAttribute('id','p_'+x+','+y+','+i+','+j+','+(3*p+q+1));
+                cellS.setAttribute('class','small');
+                var cellText = document.createTextNode(p*3+q+1);
+                cellS.appendChild(cellText);
+                lineS.appendChild(cellS);
+              }
+              tableS.appendChild(lineS);
+            }
+            cellM.appendChild(tableS);
+            lineM.appendChild(cellM);      
+          }  
+          tableM.appendChild(lineM);
+        }
+        cellL.appendChild(tableM);
+        lineL.appendChild(cellL);
       }
-	  // Remove values no longer available in current block
-//	  for (i = 0; i < 3; i++){
-//	    for (j = 0; j < 3; j++){
-//		  var toReset=document.getElementById('p_'+cVal[0]+','+cVal[1]+','+i+','+j+','+cVal[4]);
-//		  if (toReset!=null){
-//			toReset.setAttribute('onclick',null);
-//			toReset.setAttribute('style','color:lightgrey');
-//		  }
-//		}	
-//	  }
-  	  // Remove values in grey boxes
+      tableL.appendChild(lineL);
+    }
+    var root=document.getElementById('sudokuTable');
+    root.appendChild(tableL);
 
-	}
-	</script>
+    function clickedS(t){
+    // Retreive 'x and y' value from clicked item
+    var cVal=JSON.parse('['+t.id.replace("p_","")+']');   
+    var x=3*cVal[0]+cVal[2];
+    var y=3*cVal[1]+cVal[3];
+    var val=cVal[4];
+    // Remove 'small squares'
+    var toRemove=document.getElementById('T='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
+    var target=document.getElementById('M='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
+    target.removeChild(toRemove);
+    // Set new text
+      var cellText = document.createTextNode(cVal[4]);
+      target.appendChild(cellText);
+      // Remove values no longer available 
+        for (var xt = 0; xt < 3 ; xt++){
+          for (var yt = 0; yt < 3 ; yt++){
+            for (var i = 0; i < 3 ; i++){
+              for (var j = 0; j < 3 ; j++){
+                // console.log('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+                // Along lines
+                if ((xt*3+i)==x||(yt*3+j)==y){
+                  var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+                  if (toReset!=null){
+                    toReset.setAttribute('onclick',null);
+                    toReset.setAttribute('style','color:cyan');
+                  }
+                }  
+                // In 'grey' (NRC) block
+               if ( (x%4!=0) && (y%4!=0) && ((xt*3+i)%4!=0) && ((yt*3+j)%4!=0) && (parseInt(x/4)==parseInt((xt*3+i)/4)) && (parseInt(y/4)==parseInt((yt*3+j)/4))) {
+                 var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+                 if (toReset!=null){
+                   toReset.setAttribute('onclick',null);
+                   toReset.setAttribute('style','color:cyan');
+                 }
+               }        
+               // In 'classic' block
+               if (xt==cVal[0]&&yt==cVal[1]){
+                 var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+                 if (toReset!=null){
+                   toReset.setAttribute('onclick',null);
+                   toReset.setAttribute('style','color:cyan');
+                 }
+               }        
+             }  
+           }
+         } 
+       }
+     }
+  </script>
 </html>
 
