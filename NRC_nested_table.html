@@ -15,7 +15,7 @@
   <style>
     table {
       border-collapse: collapse;
-  }
+    }
     td.large {
       width: 153px;
     }
@@ -49,7 +49,7 @@
     <h2>Background</h2>
     <p>Once upon a time tried to solve Sudoku in html5...
        This travel is documented at: <a href="http://janvandermeiden.blogspot.nl/2015/11/using-javascript-to-solve-sudoku.html">this blog</a>.
-       A chosen value can be 'unchosen' by double clicking. 
+       A chosen value can be 'unchosen' by clicking againg.
     </p> 
 
     <div id="sudokuTable">
@@ -59,13 +59,23 @@
   </body>
   <script>
     // Set up table
-	var hist = [];
-	var move = [];
-	
-	function init(){
+    var hist = [];
+    var move = [];
+    var flags = [];
+  
+    function init(){
+      // an ugly construct.. have to discrimitate on filled in values wether they are clicked
+      // on creation (first time) or to be deleted
+      for (var p=0 ; p<6 ;p++){
+         flags[p]=[];
+         for (var q=0; q<6 ; q++){
+           flags[p][q]=0;
+         }
+      }
+  
       var tableL = document.createElement('table');
       tableL.setAttribute('border', '3');
-	  tableL.setAttribute('id', 'rootTable')
+      tableL.setAttribute('id', 'rootTable')
       for (var x = 0; x < 3 ; x++){
         var lineL = document.createElement('tr');
         lineL.setAttribute('class','large');
@@ -117,52 +127,59 @@
       }
       var root=document.getElementById('sudokuTable');
       root.appendChild(tableL);
-	}
+    }
 
-	function removeM(t){
-	  var cVal=JSON.parse('['+t.id.replace("M_","")+']');
-	  x=cVal[0]*3+cVal[2];
-	  y=cVal[1]*3+cVal[3];
-	  var elem = document.getElementById('rootTable');
+    function removeM(t){
+      var cVal=JSON.parse('['+t.id.replace("M_","")+']');
+      x=cVal[0]*3+cVal[2];
+      y=cVal[1]*3+cVal[3];
+      if (flags[x][y]==0) {
+        flags[x][y] = 1;
+        return(0);
+      } else { 
+        flags[x][y] = 0;
+      }
+
+      var elem = document.getElementById('rootTable');
       if (typeof elem != 'undefined')
       {
          elem.parentNode.removeChild(elem);
       }
-	  init();
-	  var newhist = [];
-	  for(i=0;i<hist.length;i++){
-	    if((hist[i][0]!=x)||(hist[i][1]!=y)){
+      init();
+      var newhist = [];
+      for(i=0;i<hist.length;i++){
+        if((hist[i][0]!=x)||(hist[i][1]!=y)){
           newhist.push(hist[i]);
           addMove(hist[i]);
-		}
-	  }
-	  hist=newhist;
-	}
-	
+        }
+      }
+      hist=newhist;
+    }
+  
     function clickedS(t){
-    var cVal=JSON.parse('['+t.id.replace("p_","")+']');   
-    var x=3*cVal[0]+cVal[2];
-    var y=3*cVal[1]+cVal[3];
-    var val=cVal[4];
-	move=[x,y,val];
-	hist.push(move);
-	addMove(move);
-   }
- 	
-   function addMove(move){
-    var x=move[0];
-    var y=move[1];	
-    var val=move[2];
-    var cVal=[parseInt(x/3),parseInt(y/3),x%3,y%3,val];	
-     // Remove 'small squares'
-    var toRemove=document.getElementById('T='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
-    var target=document.getElementById('M_'+cVal[0]+','+cVal[1]+','+cVal[2]+','+cVal[3]);
-    target.removeChild(toRemove);
-    // Set new text
-    var cellText = document.createTextNode(val);
-    target.appendChild(cellText);
-	target.setAttribute('ondblclick','removeM(this)');
-    // Remove values no longer available 
+      var cVal=JSON.parse('['+t.id.replace("p_","")+']');   
+      var x=3*cVal[0]+cVal[2];
+      var y=3*cVal[1]+cVal[3];
+      var val=cVal[4];
+      move=[x,y,val];
+      hist.push(move);
+      addMove(move);
+    }
+   
+    function addMove(move){
+      var x=move[0];
+      var y=move[1];  
+      var val=move[2];
+      var cVal=[parseInt(x/3),parseInt(y/3),x%3,y%3,val];  
+      // Remove 'small squares'
+      var toRemove=document.getElementById('T='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
+      var target=document.getElementById('M_'+cVal[0]+','+cVal[1]+','+cVal[2]+','+cVal[3]);
+      target.removeChild(toRemove);
+      // Set new text
+      var cellText = document.createTextNode(val);
+      target.appendChild(cellText);
+      target.setAttribute('onclick','removeM(this)');
+      // Remove values no longer available 
       for (var xt = 0; xt < 3 ; xt++){
         for (var yt = 0; yt < 3 ; yt++){
           for (var i = 0; i < 3 ; i++){
@@ -196,9 +213,9 @@
        } 
      }   
    }
-	
+  
    init();
-	   
+     
 
   </script>
 </html>
