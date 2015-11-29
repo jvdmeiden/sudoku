@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Jan van der Meiden - jvdmeiden@gmail.com                                -->
+<!-- Interactive version of the NRC sudoku (4 additional lightgrey squares)  -->
+<!--                                                                         -->
+
+<head>
+  <meta charset="utf-8">
+  <title>Sudoku NRC</title>
+  <meta name="copyright" content="Jan van der Meiden">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <style>
+    table {
+      border-collapse: collapse;
+    }
+    td.large {
+      width: 153px;
+    }
+    tr.lage {
+      height: 153px;
+    }
+    td.medium {
+      text-align: center;
+      font-size: 36px;
+      cursor: crosshair;    
+      width: 51px;
+    }
+    tr.medium {
+      height: 51px;
+    }  
+    td.small {
+      text-align: center;
+      font-size: 12px;
+      width: 17px;
+    }
+    tr.small {
+      height: 17px;
+    }  
+    td.nrc {
+      bgcolor: '#f0f0f0'
+    }  
+   </style>
+</head>
+  <body>
+  <div class="container">
+    <h2>Background</h2>
+    <p>Once upon a time tried to solve Sudoku in html5...
+       This travel is documented at: <a href="http://janvandermeiden.blogspot.nl/2015/11/using-javascript-to-solve-sudoku.html">this blog</a>.
+       A chosen value can be 'unchosen' by clicking againg.
+    </p> 
+
+    <div id="sudokuTable">
+    </div>
+	<div id="options">
+	
+  <div class="col-md-12" class="form">
+ 	  <form onsubmit="return submitSample()">
+        
+          <label for="mySample">Pick a sample</label>
+          <select id="mySample" name="sample">
+            <option>20151128(527): [[0,1,1],[0,8,9],[1,6,6],[2,2,4],[2,5,1],[3,0,7],[3,5,9],[5,3,6],[6,3,2],[6,6,1],[7,1,9],[7,2,8],[7,6,3],[7,7,7],[8,2,3],[8,5,4]]</option>
+            <option>20151123(2460): [[0,3,6],[1,1,9],[1,6,1],[1,8,6],[3,3,7],[3,6,6],[3,8,9],[4,1,8],[4,2,9],[4,7,1],[5,0,3],[5,1,6],[5,3,5],[6,2,7],[7,0,6],[7,3,3],[7,4,4],[7,7,7],[7,8,2],[8,1,2],[8,6,8]]</option>
+          </select>
+        <input type="submit" value="Submit"/>
+      </form>	
+
+	</div>
+
+  </body>
+  <script>
+    // Set up table
+    var hist = [];
+    var move = [];
+    var flags = [];
+  
+    function init(){
+      // an ugly construct.. have to discrimitate on filled in values wether they are clicked
+      // on creation (first time) or to be deleted
+      for (var p=0 ; p<9 ;p++){
+         flags[p]=[];
+         for (var q=0; q<9 ; q++){
+           flags[p][q]=0;
+         }
+      }
+  
+      var tableL = document.createElement('table');
+      tableL.setAttribute('border', '3');
+      tableL.setAttribute('id', 'rootTable')
+      for (var x = 0; x < 3 ; x++){
+        var lineL = document.createElement('tr');
+        lineL.setAttribute('class','large');
+        for (var y = 0; y < 3 ; y++){
+          var cellL = document.createElement('td');
+          cellL.setAttribute('class','large');
+          var tableM = document.createElement('table');
+          tableM.setAttribute('border', '2');
+          for (var i = 0; i < 3 ; i++){
+            var lineM = document.createElement('tr');
+            lineM.setAttribute('class','medium');
+            for (var j = 0; j < 3 ; j++){
+              var cellM = document.createElement('td');
+              if (     (((((x*3)+i) > 0 && ((x*3)+i) < 4 )  
+                    || ((((x*3)+i) > 4 && ((x*3)+i) < 8 ))))
+                    && (((((y*3)+j) > 0 && ((y*3)+j) < 4 )  
+                    || ((((y*3)+j) > 4 && ((y*3)+j) < 8 ))))
+              ){
+                cellM.setAttribute('bgcolor','#d0d0d0');
+              }
+              cellM.setAttribute('class','medium');
+              cellM.setAttribute('id','M_'+x+','+y+','+i+','+j)
+              var tableS = document.createElement('table');
+              tableS.setAttribute('id','T='+x+','+y+'_'+i+','+j)
+              tableS.setAttribute('border', '0');
+              for (var p = 0; p < 3; p++){
+                var lineS = document.createElement('tr');
+                lineS.setAttribute('class','small');
+                for (var q = 0; q < 3; q++){
+                  var cellS = document.createElement('td');
+                  cellS.setAttribute('onclick','clickedS(this)');
+                  cellS.setAttribute('id','p_'+x+','+y+','+i+','+j+','+(3*p+q+1));
+                  cellS.setAttribute('class','small');
+                  var cellText = document.createTextNode(p*3+q+1);
+                  cellS.appendChild(cellText);
+                  lineS.appendChild(cellS);
+                }
+                tableS.appendChild(lineS);
+              }
+              cellM.appendChild(tableS);
+              lineM.appendChild(cellM);      
+            }  
+            tableM.appendChild(lineM);
+          }
+          cellL.appendChild(tableM);
+          lineL.appendChild(cellL);
+        }
+        tableL.appendChild(lineL);
+      }
+      var root=document.getElementById('sudokuTable');
+      root.appendChild(tableL);
+    }
+
+    function removeM(t){
+      var cVal=JSON.parse('['+t.id.replace("M_","")+']');
+      x=cVal[0]*3+cVal[2];
+      y=cVal[1]*3+cVal[3];
+      if (flags[x][y]==0) {
+        flags[x][y] = 1;
+        return(0);
+      } else { 
+        flags[x][y] = 0;
+      }
+
+      var elem = document.getElementById('rootTable');
+      if (typeof elem != 'undefined')
+      {
+         elem.parentNode.removeChild(elem);
+      }
+      init();
+      var newhist = [];
+      for(i=0;i<hist.length;i++){
+        if((hist[i][0]!=x)||(hist[i][1]!=y)){
+          newhist.push(hist[i]);
+          addMove(hist[i]);
+        }
+      }
+      hist=newhist;
+    }
+  
+    function clickedS(t){
+      var cVal=JSON.parse('['+t.id.replace("p_","")+']');   
+      var x=3*cVal[0]+cVal[2];
+      var y=3*cVal[1]+cVal[3];
+      var val=cVal[4];
+      move=[x,y,val];
+      hist.push(move);
+      addMove(move);
+    }
+   
+    function addMove(move){
+      var x=move[0];
+      var y=move[1];  
+      var val=move[2];
+      var cVal=[parseInt(x/3),parseInt(y/3),x%3,y%3,val];  
+      // Remove 'small squares'
+      var toRemove=document.getElementById('T='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
+      var target=document.getElementById('M_'+cVal[0]+','+cVal[1]+','+cVal[2]+','+cVal[3]);
+      target.removeChild(toRemove);
+      // Set new text
+      var cellText = document.createTextNode(val);
+      target.appendChild(cellText);
+      target.setAttribute('onclick','removeM(this)');
+      // Remove values no longer available 
+      for (var xt = 0; xt < 3 ; xt++){
+        for (var yt = 0; yt < 3 ; yt++){
+          for (var i = 0; i < 3 ; i++){
+            for (var j = 0; j < 3 ; j++){
+              // Along lines
+              if ((xt*3+i)==x||(yt*3+j)==y){
+                var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+                if (toReset!=null){
+                  toReset.setAttribute('onclick',null);
+                  toReset.setAttribute('style','color:lightgrey');
+                }
+              }  
+              // In 'grey NRC' block
+             if ( (x%4!=0) && (y%4!=0) && ((xt*3+i)%4!=0) && ((yt*3+j)%4!=0) && (parseInt(x/4)==parseInt((xt*3+i)/4)) && (parseInt(y/4)==parseInt((yt*3+j)/4))) {
+               var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+               if (toReset!=null){
+                 toReset.setAttribute('onclick',null);
+                 toReset.setAttribute('style','color:lightgrey');
+               }
+             }        
+             // In 'classic sudoku' block
+             if (xt==cVal[0]&&yt==cVal[1]){
+               var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+               if (toReset!=null){
+                 toReset.setAttribute('onclick',null);
+                 toReset.setAttribute('style','color:lightgrey');
+               }
+             }        
+           }  
+         }
+       } 
+     }   
+   }
+
+    function submitSample(evt){
+      sample=document.getElementById( 'mySample' ).value;
+      var elem = document.getElementById('rootTable');
+      if (typeof elem != 'undefined')
+      {
+        elem.parentNode.removeChild(elem);
+      }
+	  init();
+	  hist=JSON.parse(sample.split(' ')[1]);
+      for(i=0;i<hist.length;i++){
+        addMove(hist[i]);
+      }
+	  return false;
+    }
+   
+   init();
+     
+
+  </script>
+</html>
+
+
+
