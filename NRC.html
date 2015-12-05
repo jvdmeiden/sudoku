@@ -1,8 +1,13 @@
 <!DOCTYPE html>
+<!--Author: Jan van der Meiden                                            -->
+<!--Version: 20151201:00                                                  -->
+<!--Interactive version of the NRC sudoku (4 additional lightgrey squares)-->
+<!--Copyright (c) 2015 Jan van der Meiden.                                -->
+<!--Copying and distribution of this file, with or without modification,  -->
+<!--are permitted in any medium without royalty provided the copyright-   -->
+<!--notice and this notice are preserved.  This file is offered as-is,    -->
+<!--without any warranty.                                                 -->
 <html lang="en">
-<!-- Jan van der Meiden - jvdmeiden@gmail.com                                -->
-<!-- Interactive version of the NRC sudoku (4 additional lightgrey squares)  -->
-<!--                                                                         -->
 
 <head>
   <meta charset="utf-8">
@@ -42,9 +47,13 @@
     td.nrc {
       bgcolor: '#f0f0f0'
     }  
+    td.highlighted {
+      bgcolor: '#00f0f0'
+    }  
+	
    </style>
 </head>
-  <body>
+<body>
   <div class="container">
     <h2>Background</h2>
     <p>Once upon a time tried to solve Sudoku in html5...
@@ -63,10 +72,13 @@
           <select id="mySample" name="sample">
             <option>20151128(527): [[0,1,1],[0,8,9],[1,6,6],[2,2,4],[2,5,1],[3,0,7],[3,5,9],[5,3,6],[6,3,2],[6,6,1],[7,1,9],[7,2,8],[7,6,3],[7,7,7],[8,2,3],[8,5,4]]</option>
             <option>20151123(2460): [[0,3,6],[1,1,9],[1,6,1],[1,8,6],[3,3,7],[3,6,6],[3,8,9],[4,1,8],[4,2,9],[4,7,1],[5,0,3],[5,1,6],[5,3,5],[6,2,7],[7,0,6],[7,3,3],[7,4,4],[7,7,7],[7,8,2],[8,1,2],[8,6,8]]</option>
+            <option>Sample_in_blog: [[0,0,6],[1,1,8],[1,3,7],[2,1,9],[2,2,5],[3,6,3],[4,1,4],[4,5,7],[5,2,6],[5,6,1],[6,3,8],[6,4,4],[6,5,9],[6,6,7],[7,1,2],[7,3,1]]</option>
           </select>
         <input type="submit" value="Submit"/>
       </form>	
-
+ 	  <form onsubmit="return hint()">        
+        <input type="submit" value="hint"/>
+      </form>	
 	</div>
 
   </body>
@@ -75,14 +87,18 @@
     var hist = [];
     var move = [];
     var flags = [];
+	var possible = [];
   
     function init(){
-      // an ugly construct.. have to discrimitate on filled in values wether they are clicked
-      // on creation (first time) or to be deleted
+      // flag is an ugly construct.. have to discrimitate on filled in values wether 
+	  // they are clicked on creation (first time) or to be deleted
+	  
       for (var p=0 ; p<9 ;p++){
          flags[p]=[];
+		 possible[p]=[]
          for (var q=0; q<9 ; q++){
            flags[p][q]=0;
+		   possible[p][q]=[1,2,3,4,5,6,7,8,9]
          }
       }
   
@@ -184,7 +200,9 @@
       var y=move[1];  
       var val=move[2];
       var cVal=[parseInt(x/3),parseInt(y/3),x%3,y%3,val];  
-      // Remove 'small squares'
+
+	  // Remove value
+	  possible[x][y]=[];
       var toRemove=document.getElementById('T='+cVal[0]+','+cVal[1]+'_'+cVal[2]+','+cVal[3]);
       var target=document.getElementById('M_'+cVal[0]+','+cVal[1]+','+cVal[2]+','+cVal[3]);
       target.removeChild(toRemove);
@@ -199,7 +217,11 @@
             for (var j = 0; j < 3 ; j++){
               // Along lines
               if ((xt*3+i)==x||(yt*3+j)==y){
-                var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
+                var indexRemove=possible[xt*3+i][yt*3+j].indexOf(cVal[4]);
+			    if (indexRemove > -1){
+			      possible[xt*3+i][yt*3+j].splice(indexRemove, 1);				  
+                }
+                var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4])				
                 if (toReset!=null){
                   toReset.setAttribute('onclick',null);
                   toReset.setAttribute('style','color:lightgrey');
@@ -207,6 +229,10 @@
               }  
               // In 'grey NRC' block
              if ( (x%4!=0) && (y%4!=0) && ((xt*3+i)%4!=0) && ((yt*3+j)%4!=0) && (parseInt(x/4)==parseInt((xt*3+i)/4)) && (parseInt(y/4)==parseInt((yt*3+j)/4))) {
+               var indexRemove=possible[xt*3+i][yt*3+j].indexOf(cVal[4]);
+			   if (indexRemove > -1){
+			     possible[xt*3+i][yt*3+j].splice(indexRemove, 1);				  
+               }			 
                var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
                if (toReset!=null){
                  toReset.setAttribute('onclick',null);
@@ -215,6 +241,10 @@
              }        
              // In 'classic sudoku' block
              if (xt==cVal[0]&&yt==cVal[1]){
+               var indexRemove=possible[xt*3+i][yt*3+j].indexOf(cVal[4]);
+			   if (indexRemove > -1){
+			     possible[xt*3+i][yt*3+j].splice(indexRemove, 1);				  
+               }			 			 
                var toReset=document.getElementById('p_'+xt+','+yt+','+i+','+j+','+cVal[4]);
                if (toReset!=null){
                  toReset.setAttribute('onclick',null);
@@ -227,26 +257,141 @@
      }   
    }
 
-    function submitSample(evt){
-      sample=document.getElementById( 'mySample' ).value;
-      var elem = document.getElementById('rootTable');
-      if (typeof elem != 'undefined')
-      {
-        elem.parentNode.removeChild(elem);
-      }
-	  init();
-	  hist=JSON.parse(sample.split(' ')[1]);
-      for(i=0;i<hist.length;i++){
-        addMove(hist[i]);
-      }
-	  return false;
-    }
+   function submitSample(evt){
+     sample=document.getElementById( 'mySample' ).value;
+     var elem = document.getElementById('rootTable');
+     if (typeof elem != 'undefined')
+     {
+       elem.parentNode.removeChild(elem);
+     }
+	 init();
+	 hist=JSON.parse(sample.split(' ')[1]);
+     for(i=0;i<hist.length;i++){
+       addMove(hist[i]);
+     }
+	 return false;
+   }
+   
+   function hint(evt){
+     var x=0;
+	 var y=0;
+	 var i=0;
+	 var j=0;
+	 var count=[];
+	 // mark trivial
+	 for (x=0; x<9; x++){
+	   for (y=0; y<9; y++){
+	     if (possible[x][y].length==1){
+               var toHighlight=document.getElementById('p_'+parseInt(x/3)+','+parseInt(y/3)+','+x%3+','+y%3+','+possible[x][y][0]);
+               toHighlight.setAttribute('bgcolor','yellow')
+	     }
+	   }
+	 }
+	 // check unique values along lines
+	 for (x=0; x<9; x++){
+	   count=[0,0,0,0,0,0,0,0,0];
+	   for (y=0; y<9; y++){
+	     for (i=0; i<9; i++){
+	       if (possible[x][y].indexOf(i+1)>-1){
+	         count[i]+=1;
+	      }
+	    }
+	  }
+	  for (i=0; i<9; i++){
+	    if (count[i]==1){
+	      for (j=0; j<9; j++){
+                var hit=possible[x][j].indexOf(i+1);
+		     if (hit>-1){
+               var toHighlight=document.getElementById('p_'+parseInt(x/3)+','+parseInt(j/3)+','+x%3+','+j%3+','+possible[x][j][hit]);
+		       toHighlight.setAttribute('bgcolor','yellow')
+			 }		     
+		   }
+		 }
+	   }
+	 }
+	 // check unique values along columns
+	 for (y=0; y<9; y++){
+	   count=[0,0,0,0,0,0,0,0,0];
+	   for (x=0; x<9; x++){
+	     for (i=0; i<9; i++){
+		   if (possible[x][y].indexOf(i+1)>-1){
+		     count[i]+=1;
+		   }
+		 }
+	   }
+	   for (i=0; i<9; i++){
+	     if (count[i]==1){
+		   for (j=0; j<9; j++){
+             var hit=possible[j][y].indexOf(i+1);
+		     if (hit>-1){
+               var toHighlight=document.getElementById('p_'+parseInt(j/3)+','+parseInt(y/3)+','+j%3+','+y%3+','+possible[j][y][hit]);
+		       toHighlight.setAttribute('bgcolor','yellow');
+			 }		     
+		   }
+		 }
+	   }
+	 }
+	 // check normal squares
+	 for(i=0;i<9;i+=3){	   
+	   for(j=0;j<9;j+=3){
+	     count=[0,0,0,0,0,0,0,0,0];
+		 for (x=i;x<i+3;x++){
+		   for (y=j;y<j+3;y++){
+		     for (var t=0; t<9; t++){
+			   if (possible[x][y].indexOf(t+1)>-1){
+		         count[t]+=1;
+		       }
+			 }
+		   }
+		 }
+		 for (x=i;x<i+3;x++){
+		   for (y=j;y<j+3;y++){
+		     for (var t=0; t<9; t++){
+			   if (count[t]==1&&possible[x][y].indexOf(t+1)>-1){
+		         var toHighlight=document.getElementById('p_'+parseInt(x/3)+','+parseInt(y/3)+','+x%3+','+y%3+','+(t+1));
+		         toHighlight.setAttribute('bgcolor','yellow');
+		       }
+			 }
+		   }
+		 }
+	   }
+	 }
+	 // check NRC squares
+	 for(i=1;i<9;i+=4){	   
+	   for(j=1;j<9;j+=4){
+	     count=[0,0,0,0,0,0,0,0,0];
+		 for (x=i;x<i+3;x++){
+		   for (y=j;y<j+3;y++){
+		     for (var t=0; t<9; t++){
+			   if (possible[x][y].indexOf(t+1)>-1){
+		         count[t]+=1;
+		       }
+			 }
+		   }
+		 }
+		 for (x=i;x<i+3;x++){
+		   for (y=j;y<j+3;y++){
+		     for (var t=0; t<9; t++){
+			   if (count[t]==1&&possible[x][y].indexOf(t+1)>-1){
+		         var toHighlight=document.getElementById('p_'+parseInt(x/3)+','+parseInt(y/3)+','+x%3+','+y%3+','+(t+1));
+		         toHighlight.setAttribute('bgcolor','yellow');
+		       }
+			 }
+		   }
+		 }
+	   }
+	 }
+	 	 
+
+	 return false;
+   }
    
    init();
      
 
   </script>
 </html>
+
 
 
 
